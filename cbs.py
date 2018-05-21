@@ -11,7 +11,7 @@ Kinsey Reeves 18/05/2018
 """
 
 final_segs = []
-Z_THRESH = 10
+Z_THRESH = 5
 
 def print_segs(segs):
     
@@ -23,6 +23,13 @@ def print_segs(segs):
         for i in range(0,len(segs[1])):
             print(str(segs[1][i]) + " " + str(i) )
 
+def print_seg(segs):
+    for i in segs:
+        print(i)
+
+
+def get_starts_ends(segment):
+    return 
 
 def setup(filename):
     
@@ -78,6 +85,7 @@ def cbs(data):
         cbs(segs[0])
         cbs(segs[1])
     else:
+        
         final_segs.append(data)
         return
 
@@ -102,13 +110,14 @@ def splice(i, j, data):
     splice_b = []
     i = idx(i, n)
     j = idx(j, n)
-    
+    i+=1
+    j+=1
     if(i < j):
-        splice_a = data[i+1:j+1]
-        splice_b = data[j+1:] + data[0:i+1]
+        splice_a = data[i:j]
+        splice_b = data[j:] + data[0:i]
     else:
-        splice_b = data[i+1:] + data[0:j+1]
-        splice_a = data[j+1:i+1]
+        splice_a = data[i:] + data[0:j]
+        splice_b = data[j:i]
 
     return (splice_a, splice_b)
     
@@ -118,16 +127,19 @@ a = cbs(data)
 out = []
 for segment in final_segs:
     avg = sum([x[3] for x in segment])/len(segment)
-    if(abs(avg)>0.1):
-        out.append(segment[0][0:2] + [segment[-1][2]] + [avg])
+    #if(abs(avg)>0.1):
+    out.append(segment[0][0:2] + [segment[-1][2]] + [avg] + [len(segment)])
     
+    for line in segment:
+        print(line)
+    print("\n\n\n\n\n"*30)
 
 
 out = sorted(out, key=itemgetter(1))
 
 for seg in out:
     
-    print("{0}\t{1}\t{2}\t{3:.2f}".format(seg[0], seg[1], seg[2], seg[3]))
+    print("{0}\t{1}\t{2}\t{3:.2f}\t+{4}".format(seg[0], seg[1], seg[2], seg[3], seg[4]))
     
 
 
