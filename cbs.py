@@ -13,6 +13,17 @@ Kinsey Reeves 18/05/2018
 final_segs = []
 Z_THRESH = 10
 
+def print_segs(segs):
+    
+    if(segs):
+        print("SEG A")
+        for i in range(0,len(segs[0])):
+            print(str(segs[0][i]) + " " + str(i) )
+        print("SEG B")
+        for i in range(0,len(segs[1])):
+            print(str(segs[1][i]) + " " + str(i) )
+
+
 def setup(filename):
     
     f = open(filename, 'r')
@@ -53,19 +64,21 @@ def cbs(data):
             z*= ( ((sum_j-sum_i)/(j-i)) - ((sum_n-sum_j+sum_i)/(n-j+i)))   
             z = abs(z)
         
-            if(z>=Z_THRESH):
-                if(z>best):
-                    found = True
-                    best = z
-                    best_i = i
-                    best_j = j
+            if(z>=Z_THRESH and z>best):
+                found = True
+                best = z
+                best_i = i
+                best_j = j
                 
     if(found):
         segs = splice(best_i, best_j, data)
-        final_segs.append(segs[0])
+        #print("here")
+        #print_segs(segs)
+        #a = input()
         cbs(segs[0])
         cbs(segs[1])
     else:
+        final_segs.append(data)
         return
 
 #safe index
@@ -92,33 +105,28 @@ def splice(i, j, data):
     
     if(i < j):
         splice_a = data[i+1:j+1]
-        splice_b = data[0:i+1] + data[j+1:]
+        splice_b = data[j+1:] + data[0:i+1]
     else:
         splice_b = data[i+1:] + data[0:j+1]
         splice_a = data[j+1:i+1]
 
     return (splice_a, splice_b)
     
-def print_segs(segs):
-
-    if(segs):
-        print("SEG A")
-        for i in range(0,len(segs[0])):
-            print(str(segs[0][i]) + " " + str(i) )
-        print("SEG B")
-        for i in range(0,len(segs[1])):
-            print(str(segs[1][i]) + " " + str(i) )
-
 
 data = setup("tumor.txt")
 a = cbs(data)
 out = []
 for segment in final_segs:
-    out.append(segment[0][0:2] + segment[-1][2:])
+    avg = sum([x[3] for x in segment])/len(segment)
+    if(abs(avg)>0.1):
+        out.append(segment[0][0:2] + [segment[-1][2]] + [avg])
+    
+
 
 out = sorted(out, key=itemgetter(1))
 
 for seg in out:
+    
     print("{0}\t{1}\t{2}\t{3:.2f}".format(seg[0], seg[1], seg[2], seg[3]))
     
 
